@@ -1,0 +1,20 @@
+{application, dberl,
+ [
+  {description, "Erlang NoSQL DB Tool"},
+  {vsn, "0.0.1"},
+  {applications,
+   [
+    kernel,
+    stdlib,
+    sasl,
+    crypto,
+    jiffy,
+    cberl
+   ]
+  },
+  {modules, []},
+  {mod, {dberl, []}},
+  {registered, []},
+  {env, []}
+ ]
+}.
