@@ -179,7 +179,9 @@ t_query(Store) ->
   {7, All} = dberl_repo:find_all(Store, {"tests", "v0"}),
   {7, All} = dberl_repo:find_all(Store, {"tests", "v0"}, 100, 0),
   7 = length(All),
-  Doc = {"tests", "v1"},
+  {7, MQ} = dberl_repo:find_by_cond(Store, {"tests", "v1"}, [{a, "a"}]),
+  2 = length(MQ),
+  Doc = {"tests", "v2"},
   Conds = [{a, "a1"}, {b, "b1"}],
   {7, MQ0} = dberl_repo:find_by_cond(Store, Doc, Conds),
   4 = length(MQ0),
@@ -200,7 +202,7 @@ t_query(Store) ->
   [#{<<"id">> := <<"M7">>}] = MQ3,
 
   %% Query by range
-  Doc2 = {"tests", "v2"},
+  Doc2 = {"tests", "v3"},
   RStart = [{c, "c"}, {startkey, [Year + 1, Month, 1, 14, 0, 0]}],
   REnd = [{c, "c"}, {endkey, [Year + 1, Month, 4, 23, 0, 0]}],
   {7, MQ4} = dberl_repo:find_by_range(Store, Doc2, RStart, REnd, 2, 0),
@@ -221,13 +223,17 @@ run_all_providers(Fun) ->
 
 create_procedures(Store) ->
   Map0 = <<"function (doc, meta) {emit(meta.id, doc);}">>,
-  Map1 = <<"function (doc, meta) {emit([doc.a, doc.b], doc);}">>,
-  MapStr2 =
+  Map1 = <<"function (doc, meta) {emit(doc.a, doc);}">>,
+  Map2 = <<"function (doc, meta) {emit([doc.a, doc.b], doc);}">>,
+  MapStr3 =
     "function (doc, meta) {" ++
       "if(doc.c && doc.start) {" ++
         "emit([doc.c, dateToArray(doc.start)], doc);" ++
     "}}",
-  Map2 = list_to_binary(MapStr2),
-  DDoc = #{v0 => #{map => Map0}, v1 => #{map => Map1}, v2 => #{map => Map2}},
+  Map3 = list_to_binary(MapStr3),
+  DDoc = #{v0 => #{map => Map0},
+           v1 => #{map => Map1},
+           v2 => #{map => Map2},
+           v3 => #{map => Map3}},
   ok = dberl_repo:set_query(Store, "tests", DDoc),
   timer:sleep(1000).

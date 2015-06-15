@@ -1,0 +1,24 @@
+{application, multilayer,
+ [
+  {description, "Multilayer App using dberl as persistence layer."},
+  {vsn, "0.1.0"},
+  {applications,
+   [
+    kernel,
+    stdlib,
+    crypto,
+    inets,
+    lager,
+    jiffy,
+    cberl,
+    dberl,
+    cowboy
+   ]
+  },
+  {modules, []},
+  {mod, {multilayer, []}},
+  {registered, []},
+  {env, []},
+  {start_phases, [{start_cowboy_listeners, []}]}
+ ]
+}.

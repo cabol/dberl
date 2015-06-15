@@ -58,8 +58,8 @@
 -type key()          :: atom() | string() | binary().
 -type value()        :: any().
 -type error()        :: {error, term()}.
--type proplist()     :: [{any(), any()}].
--type doc()          :: term() | iolist().
+-type proplist()     :: [{atom(), any()}].
+-type doc()          :: atom() | iolist() | tuple().
 -type reply()        :: ok | value() | error().
 -type offset()       :: non_neg_integer() | iolist().
 -type bulk()         :: [{key(), reply()}].
@@ -67,7 +67,7 @@
 -type total()        :: non_neg_integer().
 -type response(R, S) :: {ok, R, S} | {error, term(), S}.
 
--export_type([store/0, key/0, value/0, reply/0, offset/0,
+-export_type([store/0, key/0, value/0, proplist/0, reply/0, offset/0,
               bulk/0, results/0, response/2]).
 
 %% State

@@ -46,7 +46,6 @@
 -record(state, {pool :: atom(), q_args :: [{atom(), any()}]}).
 -type state() :: #state{}.
 
--type options()    :: [{atom(), any()}].
 -type q_results()  :: {dberl_repo:total(), dberl_repo:results()}.
 -type procedure()  :: #{map => binary(), reduce => binary()}.
 -type procedures() :: #{procedure => procedure()}.
@@ -148,7 +147,7 @@ find_all(Store, Doc, Limit, Offset, #state{q_args = QArgs} = State) ->
   query(Store, Doc, Args, State).
 
 -spec find_by_cond(
-  dberl_repo:store(), {string(), string()}, options(), state()
+  dberl_repo:store(), {string(), string()}, dberl_repo:proplist(), state()
 ) -> dberl_repo:response(q_results(), state()).
 find_by_cond(Store, Doc, Conditions, State) ->
   find_by_cond(Store, Doc, Conditions, 0, 0, State).
@@ -156,7 +155,7 @@ find_by_cond(Store, Doc, Conditions, State) ->
 -spec find_by_cond(
   dberl_repo:store(),
   {string(), string()},
-  options(),
+  dberl_repo:proplist(),
   non_neg_integer(),
   dberl_repo:offset(),
   state()
@@ -175,7 +174,11 @@ find_by_cond(Store,
   query(Store, Doc, Args, State).
 
 -spec find_by_range(
-  dberl_repo:store(), {string(), string()}, options(), options(), state()
+  dberl_repo:store(),
+  {string(), string()},
+  dberl_repo:proplist(),
+  dberl_repo:proplist(),
+  state()
 ) -> dberl_repo:response(q_results(), state()).
 find_by_range(Store, Doc, Start, End, State) ->
   find_by_range(Store, Doc, Start, End, 0, 0, State).
@@ -183,8 +186,8 @@ find_by_range(Store, Doc, Start, End, State) ->
 -spec find_by_range(
   dberl_repo:store(),
   {string(), string()},
-  options(),
-  options(),
+  dberl_repo:proplist(),
+  dberl_repo:proplist(),
   non_neg_integer(),
   dberl_repo:offset(),
   state()
@@ -205,7 +208,7 @@ find_by_range(Store,
   query(Store, Doc, Args, State).
 
 -spec query(
-  dberl_repo:store(), {string(), string()}, options(), state()
+  dberl_repo:store(), {string(), string()}, dberl_repo:proplist(), state()
 ) -> dberl_repo:response(q_results(), state()).
 query(_Store, {DocName, ViewName}, Args, #state{pool = PoolName} = State) ->
   case cberl:view(PoolName, DocName, ViewName, Args) of
@@ -263,7 +266,7 @@ dec_q_results(L) ->
   lists:foldr(F, [], L).
 
 %% @private
-parse_conds(Opts) ->
+normalize_conds(Opts) ->
   F = fun({_, Y}, Acc) when is_list(Y) ->
         case io_lib:printable_list(Y) of
           true  -> [dberl_util:to_bin(Y) | Acc];
@@ -278,16 +281,16 @@ parse_conds(Opts) ->
 parse_args([], Acc) ->
   Acc;
 parse_args([{key, V} | T], Acc) ->
-  [Key] = parse_conds(V),
+  [Key] = normalize_conds(V),
   parse_args(T, [{key, Key} | Acc]);
 parse_args([{keys, V} | T], Acc) ->
-  Keys = parse_conds(V),
+  Keys = normalize_conds(V),
   parse_args(T, [{keys, [Keys]} | Acc]);
 parse_args([{startkey, V} | T], Acc) ->
-  StartKeys = dberl_util:to_list(dberl_json:encode(parse_conds(V))),
+  StartKeys = dberl_util:to_list(dberl_json:encode(normalize_conds(V))),
   parse_args(T, [{startkey, StartKeys} | Acc]);
 parse_args([{endkey, V} | T], Acc) ->
-  EndKeys = dberl_util:to_list(dberl_json:encode(parse_conds(V))),
+  EndKeys = dberl_util:to_list(dberl_json:encode(normalize_conds(V))),
   parse_args(T, [{endkey, EndKeys} | Acc]);
 parse_args([{offset, V} | T], Acc) when is_integer(V), V >= 0 ->
   parse_args(T, [{skip, V} | Acc]);
