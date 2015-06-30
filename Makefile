@@ -6,7 +6,7 @@ DEPS = jiffy cberl erlydtl
 TEST_DEPS =
 
 dep_jiffy   = git https://github.com/davisp/jiffy.git       0.13.3
-dep_cberl   = git https://github.com/chitika/cberl.git      master
+dep_cberl   = git https://github.com/cabol/cberl.git        master
 dep_erlydtl = git https://github.com/evanmiller/erlydtl.git 0.10.0
 
 DIALYZER_Ddberl := ebin/
