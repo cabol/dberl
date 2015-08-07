@@ -5,7 +5,7 @@ CONFIG ?= test/test.config
 DEPS = jiffy cberl erlydtl
 TEST_DEPS =
 
-dep_jiffy   = git https://github.com/davisp/jiffy.git       0.13.3
+dep_jiffy   = git https://github.com/davisp/jiffy.git       0.14.2
 dep_cberl   = git https://github.com/chitika/cberl.git      master
 dep_erlydtl = git https://github.com/evanmiller/erlydtl.git 0.10.0
 
